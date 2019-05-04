@@ -4,10 +4,11 @@ import os, csv, math
 import seaborn as sns
 from pathlib import Path
 from numpy import genfromtxt
+
 import matplotlib.pyplot as plot
 import matplotlib.pylab as plt
-
-
+from src.modules.visualizer import do_heatmap
+from pprint import pprint
 script_path = Path(os.path.realpath(__file__))
 project_path = script_path.parent.parent.parent
 
@@ -43,13 +44,6 @@ def create_dataset(target_path):
         dat_cwt = genfromtxt( str(dataset_folder / main_name) + '_cwt.csv', delimiter=',')
         dat_zcr = genfromtxt( str(dataset_folder / main_name) + '_zcr.csv', delimiter=',')
 
-        # plot.subplot()
-        # # plot.plot(dat_cepst)
-        # ax = sns.heatmap(dat_spect)
-        # plot.xlabel('Time')
-        # plot.ylabel('Frequency')
-        # plot.show()
-
 
         # Get the relevant entries from the dataset
         relevant = annotations.loc[annotations['Filename'] == filename]
@@ -64,14 +58,7 @@ def create_dataset(target_path):
             # print('Label: ',snippet[1], ' Length: ', len(data), ' Quantas 778 : ', len(data)/778,
             #       ' Quantas 128 : ', len(data)/128, ' Quant: {0} - {1}'.format(math.floor(begin/128),math.ceil( end/128)) )
 
-            # # Plot the sample
-            # plot.subplot()
-            # # plot.plot(dat_cepst)
-            # ax = sns.heatmap(dat_spect[:,math.floor(begin/128) : math.ceil( end/128) ])
-            # plot.xlabel('Time')
-            # plot.ylabel('Frequency')
-            # plot.show()
-
+            
 
             row_dict = {'Filename': snippet[0], 'Label': snippet[1], 'Begin': begin, 'End': end,
                         'Sample': [data[begin:end]],
@@ -89,15 +76,16 @@ def create_dataset(target_path):
 
 
 
-annotations, dataset = create_dataset(dataset_folder/ 'annotation_whole_dei.csv')
-
-annotations.to_pickle(os.path.join(pickle_folder, 'annotation_whole.pkl'))  # where to save it, usually as a .pkl
-dataset.to_pickle(os.path.join(pickle_folder, 'dataset_whole.pkl'))
+# annotations, dataset = create_dataset(dataset_folder/ 'annotation_whole_dei.csv')
+#
+# annotations.to_pickle(os.path.join(pickle_folder, 'annotation_whole.pkl'))  # where to save it, usually as a .pkl
+# dataset.to_pickle(os.path.join(pickle_folder, 'dataset_whole.pkl'))
 
 # How to read
 
-# annotations = pd.read_pickle(os.path.join(pickle_folder,'annotation_f1.pkl'))
-# dataset = pd.read_pickle(os.path.join(pickle_folder,'dataset_f1.pkl'))
-#
-# for idx, row in dataset.iterrows():
-#     print(row[1],len(row[-1][0]))
+def fetch_dataset():
+    annotations = pd.read_pickle(pickle_folder / 'annotation_whole.pkl')
+    dataset = pd.read_pickle(pickle_folder / 'dataset_whole.pkl')
+
+    return annotations, dataset
+
