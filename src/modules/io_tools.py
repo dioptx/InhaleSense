@@ -12,8 +12,8 @@ from pprint import pprint
 script_path = Path(os.path.realpath(__file__))
 project_path = script_path.parent.parent.parent
 
-dataset_folder = project_path / Path('assets/Whole')
-pickle_folder = project_path / Path('assets/Pickles')
+raw_folder = project_path / Path('data/raw')
+processed_folder = project_path / Path('data/processed')
 
 
 
@@ -33,16 +33,16 @@ def create_dataset(target_path):
 
     for idx, filename in enumerate(filenames):
         # Read the .wav file
-        fs, data = wavfile.read(dataset_folder / filename)
+        fs, data = wavfile.read(raw_folder / filename)
 
         main_name = Path(filename.split('.')[0])
 
         # Read the feature files
-        dat_cepst = genfromtxt( str(dataset_folder / main_name) + '_cepst.csv', delimiter=',')
-        dat_spect = genfromtxt( str(dataset_folder / main_name) + '_spect.csv', delimiter=',')
-        dat_mfcc = genfromtxt( str(dataset_folder / main_name) + '_mfcc.csv', delimiter=',')
-        dat_cwt = genfromtxt( str(dataset_folder / main_name) + '_cwt.csv', delimiter=',')
-        dat_zcr = genfromtxt( str(dataset_folder / main_name) + '_zcr.csv', delimiter=',')
+        dat_cepst = genfromtxt( str(raw_folder / main_name) + '_cepst.csv', delimiter=',')
+        dat_spect = genfromtxt( str(raw_folder / main_name) + '_spect.csv', delimiter=',')
+        dat_mfcc = genfromtxt( str(raw_folder / main_name) + '_mfcc.csv', delimiter=',')
+        dat_cwt = genfromtxt( str(raw_folder / main_name) + '_cwt.csv', delimiter=',')
+        dat_zcr = genfromtxt( str(raw_folder / main_name) + '_zcr.csv', delimiter=',')
 
 
         # Get the relevant entries from the dataset
@@ -76,16 +76,16 @@ def create_dataset(target_path):
 
 
 
-# annotations, dataset = create_dataset(dataset_folder/ 'annotation_whole_dei.csv')
+# annotations, dataset = create_dataset(raw_folder/ 'annotation_whole_dei.csv')
 #
-# annotations.to_pickle(os.path.join(pickle_folder, 'annotation_whole.pkl'))  # where to save it, usually as a .pkl
-# dataset.to_pickle(os.path.join(pickle_folder, 'dataset_whole.pkl'))
+# annotations.to_pickle(os.path.join(processed_folder, 'annotation_whole.pkl'))  # where to save it, usually as a .pkl
+# dataset.to_pickle(os.path.join(processed_folder, 'dataset_whole.pkl'))
 
 # How to read
 
 def fetch_dataset():
-    annotations = pd.read_pickle(pickle_folder / 'annotation_whole.pkl')
-    dataset = pd.read_pickle(pickle_folder / 'dataset_whole.pkl')
+    annotations = pd.read_pickle(processed_folder / 'annotation_whole.pkl')
+    dataset = pd.read_pickle(processed_folder / 'dataset_whole.pkl')
 
     return annotations, dataset
 
