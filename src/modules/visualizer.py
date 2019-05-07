@@ -7,7 +7,10 @@ import matplotlib.gridspec as gridspec
 import seaborn as sns
 import matplotlib.pyplot as plot
 import matplotlib.pylab as plt
-
+# Standard plotly imports
+import plotly.plotly as py
+import plotly.graph_objs as go
+from plotly.offline import iplot, init_notebook_mode
 
 
 def do_heatmap(input, title='', xlabel='time/128bits', ylabel='frequencies'):
@@ -26,3 +29,7 @@ def do_heatmap(input, title='', xlabel='time/128bits', ylabel='frequencies'):
     plot.ylabel(ylabel)
     plot.show()
 
+
+
+def plot_wav(wav_file):
+    pass

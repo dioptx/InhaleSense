@@ -32,7 +32,7 @@ batch_size = 25
 # Create a model
 model = Sequential()
 model.add(LSTM(100, return_sequences=False, input_shape=(window_size, num_of_features)))
-# model.add(Dropout(0.5))
+model.add(Dropout(0.5))
 model.add(Flatten())
 model.add(Dense(label_length, activation='softmax'))
 model.compile(loss='binary_crossentropy',
@@ -44,7 +44,7 @@ data_test = make_dataset(window_size, num_of_features, label_length, test=True).
 
 
 
-model.fit(data_train, epochs=1)
+model.fit(data_train, epochs=10)
 
 # Evaluate the model on the test data using `evaluate`
 print('\n# Evaluate on test data')
