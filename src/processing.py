@@ -1,7 +1,9 @@
 from tensorflow import python as tf
-from src.preparation import fetch_dataset
+from src.preparation import fetch_dataset, fetch_single_file
 from src.modules.visualizer import do_heatmap
 import numpy as np
+import pandas as pd
+import math
 from tensorflow.python.keras.models import Sequential
 from tensorflow.python.keras.layers import Dense, Dropout, Flatten
 from tensorflow.python.keras.layers import Embedding
@@ -9,10 +11,33 @@ from tensorflow.python.keras.layers import LSTM
 import tensorflow
 
 
+def dataset_to_array(dataset: pd.DataFrame):
+
+    feature_matrix = []
+    label_matrix = []
+
+    for idx, row in dataset.iterrows():
+
+        # Extract the feature and the labels
+        spect = row['SPECT'][0]
+        label_vector = row['LabelVector'][0]
+
+        # print(len(feature_matrix[0][0]))
+        # print(label_matrix[0].shape)
+
+        if not (spect.shape[1] == label_vector.shape[1]):
+            raise Exception('Padding required, feature and label vectors not equal length')
+
+        # Append the feature and the labels to the dataset
+        for idx in range(spect.shape[1]):
+
+            feature_matrix.append(spect[:, idx])
+            label_matrix.append(label_vector[:, idx])
 
 
-def dataset_to_array():
-    annotations, dataset = fetch_dataset()
+    return feature_matrix, label_matrix
+
+def dataset_slim_to_array(dataset: pd.DataFrame):
 
     # Metrics
     arr_Exh = []  # Exhale
@@ -107,25 +132,71 @@ def dataset_to_array():
     return data_array, data_labels
 
 
-def dataset_to_generator(window_size, dataset, labels, test):
+def dataset_to_generator(window_size:int, dataset:list, labels:list, test):
+
+    dt_size = len(dataset)
+    mark = math.floor(dt_size * 0.8)
 
     if test:
-        for idx, feature in enumerate(dataset[10001:20000]):
+        print('Dataset created with {0} entries'.format(dt_size - mark))
+
+        for idx, feature in enumerate(dataset[mark:]):
             window = dataset[idx: idx + window_size]
             if len(window) == window_size:
                 yield np.array(window), np.array(labels[idx])
     else:
-        for idx, feature in enumerate(dataset[0:10000]):
+        print('Dataset created with {0} entries'.format(mark))
+
+        for idx, feature in enumerate(dataset[0:mark]):
             window = dataset[idx: idx + window_size]
             if len(window) == window_size:
                 yield np.array(window), np.array(labels[idx])
 
 
-def make_dataset(window_size, num_of_features, label_length, test=False):
-    data_array, data_labels = dataset_to_array()
+def make_dataset(window_size:int, num_of_features:int, label_length:int, test:bool):
+    dataset = fetch_dataset(target_name= 'dataset_extended.pkl')
+
+    data_array, data_labels = dataset_to_array(dataset= dataset)
+
 
     generator = lambda: dataset_to_generator(window_size, data_array, data_labels, test)
     return tf.data.Dataset.from_generator(
         generator, (tf.float32, tf.int32), ((window_size, num_of_features), (label_length,)))
 
 
+
+
+
+
+
+def serve_single_file(filename:str, window_size:int, num_of_features:int, label_length:int, test:bool):
+
+    data_array, data_labels = fetch_single_file(filename)
+    print(data_labels[0])
+    print(data_array[0])
+    generator = lambda: dataset_to_generator(window_size, data_array, data_labels, test)
+
+    return tf.data.Dataset.from_generator(
+        generator, (tf.float32, tf.int32), ((window_size, num_of_features), (label_length,)))
+
+# fm, lm = dataset_to_array(fetch_dataset('dataset_extended.pkl'))
+# # da, dl = dataset_slim_to_array(fetch_dataset('dataset_whole.pkl'))
+# n = 0
+# d = 0
+# e = 0
+# i = 0
+# for label in lm:
+#     if list(label) == [0,0,0,1]:
+#         n += 1
+#     elif list(label) == [0,0,1,0]:
+#         d += 1
+#     elif list(label) == [0,1,0,0]:
+#         e += 1
+#     else:
+#         i += 1
+# l = [d, i ,e, n]
+# l = [i/sum(l) for i in l]
+#
+#
+#
+# print(d, i, e, n, '\n', l)

@@ -1,6 +1,6 @@
 from tensorflow import python as tf
 
-from src.processing import make_dataset
+from src.processing import make_dataset, serve_single_file
 
 
 from src.modules.visualizer import do_heatmap
@@ -44,7 +44,7 @@ data_test = make_dataset(window_size, num_of_features, label_length, test=True).
 
 
 
-model.fit(data_train, epochs=10)
+model.fit(data_train, epochs=1)
 
 # Evaluate the model on the test data using `evaluate`
 print('\n# Evaluate on test data')
@@ -59,7 +59,11 @@ predictions = model.predict(data_test)
 
 print('predictions:', predictions)
 
+dataset_test = serve_single_file('rec2018-01-22_17h41m33.475s.wav', 15, 42, 4, test= False).batch(batch_size)
+# Evaluate the model on the test data using `evaluate`
+print('\n# Evaluate on test data')
+results = model.evaluate(dataset_test)
 
 
 
-#TODO: Make: Wav to predict, Noise extraction - Dataset Improvement, Visualizations
+#TODO: Make: Wav to predict, Noise extraction - Dataset Improvement
