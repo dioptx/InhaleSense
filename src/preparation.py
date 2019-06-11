@@ -17,7 +17,7 @@ raw_folder = project_path / Path('data/raw')
 processed_folder = project_path / Path('data/processed')
 
 
-def make_label(timepoint:int, query:pd.DataFrame):
+def make_label(timepoint: int, query: pd.DataFrame):
     '''
     Finds the correct label for a set timepoint
     :param timepoint: the index of the timepoint
@@ -30,7 +30,8 @@ def make_label(timepoint:int, query:pd.DataFrame):
 
     return hash_label('Noise')
 
-def hash_label(label_name:str):
+
+def hash_label(label_name: str):
     '''
     Hashes the label name into an array
     :param label_name:
@@ -47,7 +48,8 @@ def hash_label(label_name:str):
 
     return label
 
-def create_dataset_slim(target_path:str):
+
+def create_dataset_slim(target_path: str, target_name: str):
     '''
     This function creates the dataset for a given path of inputs
     :param path:
@@ -59,9 +61,9 @@ def create_dataset_slim(target_path:str):
     filenames = set([annotation[0] for idx, annotation in annotations.iterrows()])
 
     dataset = pd.DataFrame(
-        columns=['Filename', 'Label', 'Begin', 'End' , 'Sample', 'CEPST', 'SPECT', 'MFCC', 'CWT', 'ZCR'])
+        columns=['Filename', 'LabelVector', 'Begin', 'End', 'Sample', 'CEPST', 'SPECT', 'MFCC', 'CWT', 'ZCR'])
 
-    for idx, filename in enumerate(filenames):
+    for i, filename in enumerate(filenames):
         # Read the .wav file
         fs, data = wavfile.read(raw_folder / filename)
 
@@ -97,11 +99,14 @@ def create_dataset_slim(target_path:str):
                         }
             dataset.loc[len(dataset)] = row_dict
 
-        print(idx)
+        print(i)
+
+    dataset.to_pickle(os.path.join(processed_folder, target_name + '.pkl'))
 
     return annotations, dataset
 
-def create_dataset(target_path:Path, target_name:str):
+
+def create_dataset(target_path: Path, target_name: str):
     annotations = pd.read_csv(target_path,
                               quotechar='"', skipinitialspace=True, names=['Filename', 'Label', 'begin', 'end'])
 
@@ -125,25 +130,22 @@ def create_dataset(target_path:Path, target_name:str):
         # Get the relevant entries from the dataset
         relevant = annotations.loc[annotations['Filename'] == filename]
         # Figure out the sample window size that was chosen when creating the features
-        sample_window_size = len(data)/ dat_spect.shape[1]
-
-
+        sample_window_size = len(data) / dat_spect.shape[1]
 
         # Create a matrix initialised with the Noise Label
-        label_vector = np.zeros((4, int(len(data) /sample_window_size)), int)
+        label_vector = np.zeros((4, int(len(data) / sample_window_size)), int)
         label_vector[3, :] = 1
-
 
         # Extract and append the entries with the audio snippet
         for index, snippet in relevant.iterrows():
-            begin, end = (math.floor(snippet[2]/sample_window_size), math.ceil(snippet[3]/sample_window_size))
+            begin, end = (math.floor(snippet[2] / sample_window_size), math.ceil(snippet[3] / sample_window_size))
             # Make the label patch
-            patch = np.zeros((4, end-begin), int)
+            patch = np.zeros((4, end - begin), int)
             h = hash_label(snippet[1]).index(1)
             patch[h, :] = 1
 
             # Patch the label_vector
-            label_vector[:, begin : end] = patch
+            label_vector[:, begin: end] = patch
 
         # Complete the row
         row_dict = {'Filename': filename, 'LabelVector': [label_vector],
@@ -155,7 +157,7 @@ def create_dataset(target_path:Path, target_name:str):
                     'ZCR': [dat_zcr]
                     }
         # Print some statistics
-        print(idx, sample_window_size, len(label_vector[0]), fs, filename )
+        print(idx, sample_window_size, len(label_vector[0]), fs, filename)
 
         dataset.loc[len(dataset)] = row_dict
 
@@ -166,13 +168,14 @@ def create_dataset(target_path:Path, target_name:str):
 
 # How to read
 
-def fetch_dataset(target_name:str):
+def fetch_dataset(target_name: str):
     # annotations = pd.read_pickle(processed_folder / target_name)
     dataset = pd.read_pickle(processed_folder / target_name)
 
     return dataset
 
-def fetch_single_file(filename:str):
+
+def fetch_single_file(filename: str):
     annotations = pd.read_pickle(processed_folder / 'annotation_whole.pkl')
     dataset = pd.read_pickle(processed_folder / 'dataset_whole.pkl')
 
@@ -186,16 +189,18 @@ def fetch_single_file(filename:str):
     data_array = []
     data_labels = []
 
-
     for idx, sublist in enumerate(image_dataset.T):
         # Append the features on the data_array
         data_array.append(sublist)
         # Index multiplied by the sampling factor
-        timepoint = idx*128
+        timepoint = idx * 128
         data_labels.append(make_label(timepoint, query))
 
     if len(data_labels) != len(data_array):
-        raise Exception('The length of data_array:{0} and data_labels:{1} should be equal.'.format(len(data_array), len(data_labels)))
+        raise Exception('The length of data_array:{0} and data_labels:{1} should be equal.'.format(len(data_array),
+                                                                                                   len(data_labels)))
 
     return data_array, data_labels
 
+
+# create_dataset_slim(raw_folder / 'annotation_whole_dei.csv', 'dataset_all_slim')

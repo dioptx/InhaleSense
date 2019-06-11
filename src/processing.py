@@ -12,7 +12,6 @@ import tensorflow
 
 
 def dataset_to_array(dataset: pd.DataFrame):
-
     feature_matrix = []
     label_matrix = []
 
@@ -30,15 +29,13 @@ def dataset_to_array(dataset: pd.DataFrame):
 
         # Append the feature and the labels to the dataset
         for idx in range(spect.shape[1]):
-
             feature_matrix.append(spect[:, idx])
             label_matrix.append(label_vector[:, idx])
 
-
     return feature_matrix, label_matrix
 
-def dataset_slim_to_array(dataset: pd.DataFrame):
 
+def dataset_slim_to_array(dataset: pd.DataFrame):
     # Metrics
     arr_Exh = []  # Exhale
     num_Exh = 0
@@ -132,8 +129,7 @@ def dataset_slim_to_array(dataset: pd.DataFrame):
     return data_array, data_labels
 
 
-def dataset_to_generator(window_size:int, dataset:list, labels:list, test):
-
+def dataset_to_generator_depr(window_size: int, dataset: list, labels: list, test):
     dt_size = len(dataset)
     mark = math.floor(dt_size * 0.8)
 
@@ -153,28 +149,33 @@ def dataset_to_generator(window_size:int, dataset:list, labels:list, test):
                 yield np.array(window), np.array(labels[idx])
 
 
-def make_dataset(window_size:int, num_of_features:int, label_length:int, test:bool):
-    dataset = fetch_dataset(target_name= 'dataset_extended.pkl')
+def dataset_to_generator(window_size: int, dataset: list, labels: list):
+    for idx, feature in enumerate(dataset):
+        window = dataset[idx: idx + window_size]
+        if len(window) == window_size:
+            yield np.array(window), np.array(labels[idx])
 
-    data_array, data_labels = dataset_to_array(dataset= dataset)
 
+def make_tf_dataset(dataset: pd.DataFrame, window_size: int, num_of_features: int, label_length: int):
+    data_array, data_labels = dataset_to_array(dataset=dataset)
 
-    generator = lambda: dataset_to_generator(window_size, data_array, data_labels, test)
+    generator = lambda: dataset_to_generator(window_size, data_array, data_labels)
     return tf.data.Dataset.from_generator(
         generator, (tf.float32, tf.int32), ((window_size, num_of_features), (label_length,)))
 
 
+def split_train_test(dataset, percentage: float):
+    dt_size = len(dataset)
+    mark = math.floor(dt_size * percentage)
+
+    return dataset[:mark], dataset[mark + 1:]
 
 
-
-
-
-def serve_single_file(filename:str, window_size:int, num_of_features:int, label_length:int, test:bool):
-
+def serve_single_file(filename: str, window_size: int, num_of_features: int, label_length: int, test: bool):
     data_array, data_labels = fetch_single_file(filename)
     print(data_labels[0])
     print(data_array[0])
-    generator = lambda: dataset_to_generator(window_size, data_array, data_labels, test)
+    generator = lambda: dataset_to_generator(window_size, data_array, data_labels)
 
     return tf.data.Dataset.from_generator(
         generator, (tf.float32, tf.int32), ((window_size, num_of_features), (label_length,)))
