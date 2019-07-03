@@ -89,7 +89,7 @@ def create_dataset_slim(target_path: str, target_name: str):
             # print('Label: ',snippet[1], ' Length: ', len(data), ' Quantas 778 : ', len(data)/778,
             #       ' Quantas 128 : ', len(data)/128, ' Quant: {0} - {1}'.format(math.floor(begin/128),math.ceil( end/128)) )
 
-            row_dict = {'Filename': snippet[0], 'Label': snippet[1], 'Begin': begin, 'End': end,
+            row_dict = {'Filename': snippet[0], 'LabelVector': snippet[1], 'Begin': begin, 'End': end,
                         'Sample': [data[begin:end]],
                         'CEPST': [dat_cepst[:, q_begin: q_end]],
                         'SPECT': [dat_spect[:, q_begin: q_end]],

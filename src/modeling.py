@@ -23,16 +23,14 @@ num_of_features = 42
 label_length = 4
 # Hyperparameter that defines the number of samples to work through
 # before updating the internal model parameters.
-batch_size = 25
+batch_size = 100
 
 target_name = 'dataset_all_slim.pkl'
-
 
 
 class inhalerLstm():
 
     def __init__(self):
-
         self.window_size = window_size
         self.num_of_features = num_of_features
         self.label_length = label_length
@@ -41,7 +39,7 @@ class inhalerLstm():
         self.model = self.build_model(self.window_size, self.num_of_features, self.label_length)
 
     @staticmethod
-    def build_model(window_size:int, num_of_features:int, label_length:int):
+    def build_model(window_size: int, num_of_features: int, label_length: int):
         # Create a model
         model = Sequential()
         model.add(LSTM(100, return_sequences=False, input_shape=(window_size, num_of_features)))
@@ -57,7 +55,6 @@ class inhalerLstm():
     def fit(self, *argv):
         return self.model.fit(argv)
 
-
     def evaluate(self, *argv):
         return self.model.evaluate(argv)
 
@@ -65,19 +62,17 @@ class inhalerLstm():
         return self.model.predict(argv)
 
 
-
-
 model = inhalerLstm()
 
 dataset = fetch_dataset(target_name=target_name)
 
-data_train, data_test = split_train_test(dataset= dataset, percentage=0.8)
+data_train, data_test = split_train_test(dataset=dataset, percentage=0.8)
 
 data_train = make_tf_dataset(data_train, window_size, num_of_features, label_length).batch(batch_size)
 data_test = make_tf_dataset(data_test, window_size, num_of_features, label_length).batch(batch_size)
 
-
-history = model.model.fit(data_train, validation_data= data_test, epochs=10)
+# train your model
+history = model.model.fit(data_train, validation_data=data_test, epochs=100)
 
 visualize_model_training(history)
 # Evaluate the model on the test data using `evaluate`
@@ -92,12 +87,9 @@ visualize_model_training(history)
 # predictions = model.predict(data_test)
 
 # print('predictions:', predictions)
+model.model.save('model.ckpt')
 
-dataset_test = serve_single_file('rec2018-01-22_17h41m33.475s.wav', 15, 42, 4, test= False).batch(batch_size)
+dataset_test = serve_single_file('rec2018-01-22_17h41m33.475s.wav', 15, 42, 4, test=False).batch(batch_size)
 # Evaluate the model on the test data using `evaluate`
-print('\n# Evaluate on test data')
-results = model.evaluate(dataset_test)
 
-
-
-#TODO: Make: Wav to predict, Noise extraction - Dataset Improvement
+# TODO: Make: Wav to predict, Noise extraction - Dataset Improvement

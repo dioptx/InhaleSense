@@ -1,5 +1,5 @@
 from tensorflow import python as tf
-from src.preparation import fetch_dataset, fetch_single_file
+from src.preparation import fetch_dataset, fetch_single_file, hash_label
 from src.modules.visualizer import do_heatmap
 import numpy as np
 import pandas as pd
@@ -19,13 +19,20 @@ def dataset_to_array(dataset: pd.DataFrame):
 
         # Extract the feature and the labels
         spect = row['SPECT'][0]
-        label_vector = row['LabelVector'][0]
+        if type(row['LabelVector']) == str:
+            h = hash_label(row['LabelVector']).index(1)
+
+            # Create a matrix from the Label
+            label_vector = np.zeros((4, spect.shape[1]), int)
+            label_vector[h, :] = 1
+
 
         # print(len(feature_matrix[0][0]))
         # print(label_matrix[0].shape)
 
         if not (spect.shape[1] == label_vector.shape[1]):
-            raise Exception('Padding required, feature and label vectors not equal length')
+            raise Exception('Padding required, feature and label vectors not equal length.'
+                            'Lengths:', spect.shape[1], label_vector.shape[1])
 
         # Append the feature and the labels to the dataset
         for idx in range(spect.shape[1]):

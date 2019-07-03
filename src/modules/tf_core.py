@@ -1,6 +1,6 @@
 from tensorflow import python as tf
 
-from src.processing import make_dataset
+from src.processing import make_tf_dataset
 
 
 from src.modules.visualizer import do_heatmap
@@ -39,8 +39,8 @@ model.compile(loss='binary_crossentropy',
                    optimizer='rmsprop',
                    metrics=['accuracy'])
 
-data_train = make_dataset(window_size, num_of_features, label_length, test=False).batch(batch_size)
-data_test = make_dataset(window_size, num_of_features, label_length, test=True).batch(batch_size)
+data_train = make_tf_dataset(window_size, num_of_features, label_length, test=False).batch(batch_size)
+data_test = make_tf_dataset(window_size, num_of_features, label_length, test=True).batch(batch_size)
 
 
 

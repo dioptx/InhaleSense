@@ -22,8 +22,10 @@ def do_heatmap(input, title='', xlabel='time/128bits', ylabel='frequencies'):
     :param ylabel:
     :return:
     '''
-    plot.subplot()
+    # plt.figure(figsize=(16, 6))
+
     sns.heatmap(input)
+
     plot.title(title)
     plot.xlabel(xlabel)
     plot.ylabel(ylabel)
