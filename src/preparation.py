@@ -164,7 +164,6 @@ def create_dataset(target_path: Path, target_name: str):
     dataset.to_pickle(os.path.join(processed_folder, target_name + '.pkl'))
 
 
-# create_dataset(raw_folder/ 'annotation_whole_dei.csv', target_name='dataset_extended')
 
 # How to read
 
@@ -203,4 +202,7 @@ def fetch_single_file(filename: str):
     return data_array, data_labels
 
 
-# create_dataset_slim(raw_folder / 'annotation_whole_dei.csv', 'dataset_all_slim')
+# create_dataset_slim(raw_folder / 'annotation_f1_g1_dei.csv', 'dataset_f1_g1_slim')
+
+
+

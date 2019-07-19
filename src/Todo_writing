@@ -1,0 +1,21 @@
+Section 3 - Our approach:
+
+    General algorithm of the implementation (LSTM architecture etc)
+    Graphic about the data flow pipeline
+
+Section 4 - Results:
+
+    Data collection & annotation
+    Data prepossessing window_size shape of input
+    Graphic about the data structure
+    Hyperparameters
+
+    &
+
+    Classification accuracy
+
+    Detection accuracy
+
+    Cross Detection accuracy
+
+Section 5 - Future work:
