@@ -10,6 +10,11 @@ from tensorflow.python.keras.layers import Embedding
 from tensorflow.python.keras.layers import LSTM
 import tensorflow
 
+def split_dataset(dataset):
+    total = len(dataset)
+    a, b = (math.ceil(total*0.7), math.ceil(total*0.85) )
+    train, test, val = (dataset[0:a], dataset[a+1: b], dataset[b+1:])
+    return train, test, val
 
 def dataset_to_array(dataset: pd.DataFrame):
     feature_matrix = []
@@ -39,7 +44,7 @@ def dataset_to_array(dataset: pd.DataFrame):
             feature_matrix.append(spect[:, idx])
             label_matrix.append(label_vector[:, idx])
 
-    return feature_matrix, label_matrix
+    return np.array(feature_matrix), np.array(label_matrix)
 
 
 def dataset_slim_to_array(dataset: pd.DataFrame):
@@ -166,9 +171,12 @@ def dataset_to_generator(window_size: int, dataset: list, labels: list):
 def make_tf_dataset(dataset: pd.DataFrame, window_size: int, num_of_features: int, label_length: int):
     data_array, data_labels = dataset_to_array(dataset=dataset)
 
+    # data_labels = [np.where(label == 1) for label in data_labels]
+    # label_length = 4
+
     generator = lambda: dataset_to_generator(window_size, data_array, data_labels)
     return tf.data.Dataset.from_generator(
-        generator, (tf.float32, tf.int32), ((window_size, num_of_features), (label_length,)))
+        generator, (tf.float32, tf.int32), ((window_size, num_of_features), [label_length,]))
 
 
 def split_train_test(dataset, percentage: float):
@@ -186,6 +194,8 @@ def serve_single_file(filename: str, window_size: int, num_of_features: int, lab
 
     return tf.data.Dataset.from_generator(
         generator, (tf.float32, tf.int32), ((window_size, num_of_features), (label_length,)))
+
+
 
 # fm, lm = dataset_to_array(fetch_dataset('dataset_extended.pkl'))
 # # da, dl = dataset_slim_to_array(fetch_dataset('dataset_whole.pkl'))
@@ -208,3 +218,5 @@ def serve_single_file(filename: str, window_size: int, num_of_features: int, lab
 #
 #
 # print(d, i, e, n, '\n', l)
+
+

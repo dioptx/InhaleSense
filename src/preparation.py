@@ -31,20 +31,32 @@ def make_label(timepoint: int, query: pd.DataFrame):
     return hash_label('Noise')
 
 
-def hash_label(label_name: str):
+def hash_label(label_name: str, make_int= False):
     '''
     Hashes the label name into an array
     :param label_name:
     :return:
     '''
     if label_name == 'Inhale':
-        label = [1, 0, 0, 0]
+        if make_int:
+            label = 0
+        else:
+            label = [1, 0, 0, 0]
     elif label_name == 'Exhale':
-        label = [0, 1, 0, 0]
+        if make_int:
+            label = 1
+        else:
+            label = [0, 1, 0, 0]
     elif label_name == 'Drug':
-        label = [0, 0, 1, 0]
+        if make_int:
+            label = 2
+        else:
+            label = [0, 0, 1, 0]
     else:
-        label = [0, 0, 0, 1]
+        if make_int:
+            label = 3
+        else:
+            label = [0, 0, 0, 1]
 
     return label
 

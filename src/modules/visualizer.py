@@ -13,7 +13,7 @@ import plotly.graph_objs as go
 from plotly.offline import iplot, init_notebook_mode
 
 
-def do_heatmap(input, title='', xlabel='time/128bits', ylabel='frequencies'):
+def do_heatmap(input, title='', xlabel='Window Index', ylabel='Frequency'):
     '''
     Creates a heatmap for a 2d array
     :param input:
@@ -22,7 +22,9 @@ def do_heatmap(input, title='', xlabel='time/128bits', ylabel='frequencies'):
     :param ylabel:
     :return:
     '''
-    # plt.figure(figsize=(16, 6))
+    plt.figure(figsize=(100, 20))
+
+
 
     sns.heatmap(input)
 
