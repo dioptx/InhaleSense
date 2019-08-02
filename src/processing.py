@@ -10,11 +10,20 @@ from tensorflow.python.keras.layers import Embedding
 from tensorflow.python.keras.layers import LSTM
 import tensorflow
 
-def split_dataset(dataset):
+def split_train_test_val(dataset):
     total = len(dataset)
     a, b = (math.ceil(total*0.7), math.ceil(total*0.85) )
     train, test, val = (dataset[0:a], dataset[a+1: b], dataset[b+1:])
     return train, test, val
+
+def split_train_test(dataset, percentage: float):
+    dt_size = len(dataset)
+    mark = math.floor(dt_size * percentage)
+
+    return dataset[:mark], dataset[mark + 1:]
+
+
+
 
 def dataset_to_array(dataset: pd.DataFrame):
     feature_matrix = []
@@ -179,14 +188,8 @@ def make_tf_dataset(dataset: pd.DataFrame, window_size: int, num_of_features: in
         generator, (tf.float32, tf.int32), ((window_size, num_of_features), [label_length,]))
 
 
-def split_train_test(dataset, percentage: float):
-    dt_size = len(dataset)
-    mark = math.floor(dt_size * percentage)
 
-    return dataset[:mark], dataset[mark + 1:]
-
-
-def serve_single_file(filename: str, window_size: int, num_of_features: int, label_length: int, test: bool):
+def serve_single_file(filename: str, window_size: int, num_of_features: int, label_length: int):
     data_array, data_labels = fetch_single_file(filename)
     print(data_labels[0])
     print(data_array[0])
@@ -195,28 +198,5 @@ def serve_single_file(filename: str, window_size: int, num_of_features: int, lab
     return tf.data.Dataset.from_generator(
         generator, (tf.float32, tf.int32), ((window_size, num_of_features), (label_length,)))
 
-
-
-# fm, lm = dataset_to_array(fetch_dataset('dataset_extended.pkl'))
-# # da, dl = dataset_slim_to_array(fetch_dataset('dataset_whole.pkl'))
-# n = 0
-# d = 0
-# e = 0
-# i = 0
-# for label in lm:
-#     if list(label) == [0,0,0,1]:
-#         n += 1
-#     elif list(label) == [0,0,1,0]:
-#         d += 1
-#     elif list(label) == [0,1,0,0]:
-#         e += 1
-#     else:
-#         i += 1
-# l = [d, i ,e, n]
-# l = [i/sum(l) for i in l]
-#
-#
-#
-# print(d, i, e, n, '\n', l)
 
 

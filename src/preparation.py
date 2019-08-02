@@ -176,9 +176,6 @@ def create_dataset(target_path: Path, target_name: str):
     dataset.to_pickle(os.path.join(processed_folder, target_name + '.pkl'))
 
 
-
-# How to read
-
 def fetch_dataset(target_name: str):
     # annotations = pd.read_pickle(processed_folder / target_name)
     dataset = pd.read_pickle(processed_folder / target_name)
@@ -212,9 +209,4 @@ def fetch_single_file(filename: str):
                                                                                                    len(data_labels)))
 
     return data_array, data_labels
-
-
-# create_dataset_slim(raw_folder / 'annotation_f1_g1_dei.csv', 'dataset_f1_g1_slim')
-
-
 

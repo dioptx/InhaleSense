@@ -138,6 +138,10 @@ label_length = 4
 # Hyperparameter that defines the number of samples to work through
 # before updating the internal model parameters.
 batch_size = 25
+
+
+
+
 YOUR_WAV_PATH = 'rec2018-01-22_17h41m33.475s.wav'
 
 
@@ -196,5 +200,3 @@ def evaluate_model(filepath: str, visualize: bool):
 
         a_plot = plot(fig)
 
-
-# evaluate_model(YOUR_WAV_PATH, True)
