@@ -11,7 +11,7 @@ from tensorflow.python.keras.layers import Embedding
 from tensorflow.python.keras.layers import LSTM
 from sklearn.metrics import confusion_matrix
 from src.config import LstmConfig
-from src.processing import dataset_to_array, make_tf_dataset
+from src.processing import dataset_to_array, make_tf_dataset, split_train_test_val
 
 # Processing unit verbosity
 # tensorflow.debugging.set_log_device_placement(True)
@@ -49,14 +49,12 @@ class inhalerPredictor():
 
         model.add(LSTM(512, return_sequences=False, input_shape=(lconf.window_size, lconf.num_of_features)))
         model.add(Dropout(lconf.dropout))
-        model.add(Flatten())
         model.add(Dense(lconf.label_length, activation='softmax'))
         model.compile(loss='binary_crossentropy',
                       optimizer=lconf.optimizer,
                       metrics=['accuracy'])
 
         return model
-
 
 
 def list_to_num(el):
@@ -92,3 +90,23 @@ def test_model(md, dt):
     # CM
     cm = confusion_matrix(labels, ph)
     print('\n', cm)
+
+
+
+
+def build_and_test(model, dataset, name, epochs):
+    train, test, val = split_train_test_val(dataset)
+
+    data_train = make_tf_dataset(train, window_size, num_of_features, label_length).batch(batch_size)
+    data_test = make_tf_dataset(test, window_size, num_of_features, label_length).batch(batch_size)
+
+    model.fit(data_train, epochs=epochs)
+    data_val = make_tf_dataset(val, window_size, num_of_features, label_length).batch(batch_size)
+
+    results = model.evaluate(data_val)
+    test_model(model, val)
+    print(results)
+    model.save('model_{0}_{1}.h5'.format(name, epochs))  # creates a HDF5 file 'my_model.h5'
+
+
+
