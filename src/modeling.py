@@ -1,35 +1,35 @@
-from tensorflow import python as tf
+"""
+MIT License
 
-from src.processing import make_tf_dataset, split_train_test, fetch_dataset
+Copyright (c) 2019 Dionisis Pettas
 
-from src.visualizations import visualize_model_training
-from src.modules.visualizer import do_heatmap
-import numpy as np
-from tensorflow.python.keras.models import Sequential
-from tensorflow.python.keras.layers import Dense, Dropout, Flatten
-from tensorflow.python.keras.layers import Embedding
-from tensorflow.python.keras.layers import LSTM
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+"""
+
 from sklearn.metrics import confusion_matrix
+from tensorflow.python.keras.layers import Dense, Dropout
+from tensorflow.python.keras.layers import LSTM
+from tensorflow.python.keras.models import Sequential
+
 from src.config import LstmConfig
 from src.processing import dataset_to_array, make_tf_dataset, split_train_test_val
-
-# Processing unit verbosity
-# tensorflow.debugging.set_log_device_placement(True)
-
-
-# This is the size of the window that is fed into the DNN
-window_size = 15
-# The number of the features present in the dataset
-num_of_features = 42
-# Number of distinct labels in the output
-label_length = 4
-# Hyperparameter that defines the number of samples to work through
-# before updating the internal model parameters.
-batch_size = 100
-
-target_name = 'dataset_all_slim.pkl'
-
-
 
 lconf = LstmConfig()
 
@@ -42,7 +42,6 @@ class inhalerPredictor():
         self.model = self.build_model()
 
     def build_model(self):
-
         lconf = self.lconf
         # Create a model
         model = Sequential()
@@ -72,7 +71,8 @@ def list_to_num(el):
 
 def test_model(md, dt):
     print('\n')
-    data_test = make_tf_dataset(dt, window_size, num_of_features, label_length).batch(batch_size)
+    data_test = make_tf_dataset(dt, lconf.window_size, lconf.num_of_features, lconf.label_length).batch(
+        lconf.batch_size)
     results = md.evaluate(data_test)
 
     ph = []
@@ -92,21 +92,19 @@ def test_model(md, dt):
     print('\n', cm)
 
 
-
-
 def build_and_test(model, dataset, name, epochs):
     train, test, val = split_train_test_val(dataset)
 
-    data_train = make_tf_dataset(train, window_size, num_of_features, label_length).batch(batch_size)
-    data_test = make_tf_dataset(test, window_size, num_of_features, label_length).batch(batch_size)
+    data_train = make_tf_dataset(train, lconf.window_size, lconf.num_of_features, lconf.label_length).batch(
+        lconf.batch_size)
+    data_test = make_tf_dataset(test, lconf.window_size, lconf.num_of_features, lconf.label_length).batch(
+        lconf.batch_size)
 
     model.fit(data_train, epochs=epochs)
-    data_val = make_tf_dataset(val, window_size, num_of_features, label_length).batch(batch_size)
+    data_val = make_tf_dataset(val, lconf.window_size, lconf.num_of_features, lconf.label_length).batch(
+        lconf.batch_size)
 
     results = model.evaluate(data_val)
     test_model(model, val)
     print(results)
     model.save('model_{0}_{1}.h5'.format(name, epochs))  # creates a HDF5 file 'my_model.h5'
-
-
-

@@ -1,28 +1,49 @@
-from tensorflow import python as tf
-from src.preparation import fetch_dataset, fetch_single_file, hash_label
-from src.modules.visualizer import do_heatmap
+"""
+MIT License
+
+Copyright (c) 2019 Dionisis Pettas
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+"""
+
+import math
+
 import numpy as np
 import pandas as pd
-import math
-from tensorflow.python.keras.models import Sequential
-from tensorflow.python.keras.layers import Dense, Dropout, Flatten
-from tensorflow.python.keras.layers import Embedding
-from tensorflow.python.keras.layers import LSTM
-import tensorflow
+from tensorflow import python as tf
+
+from src.preparation import fetch_single_file, hash_label
+
 
 def split_train_test_val(dataset):
     total = len(dataset)
-    a, b = (math.ceil(total*0.7), math.ceil(total*0.85) )
-    train, test, val = (dataset[0:a], dataset[a+1: b], dataset[b+1:])
+    a, b = (math.ceil(total * 0.7), math.ceil(total * 0.85))
+    train, test, val = (dataset[0:a], dataset[a + 1: b], dataset[b + 1:])
     return train, test, val
+
 
 def split_train_test(dataset, percentage: float):
     dt_size = len(dataset)
     mark = math.floor(dt_size * percentage)
 
     return dataset[:mark], dataset[mark + 1:]
-
-
 
 
 def dataset_to_array(dataset: pd.DataFrame):
@@ -39,7 +60,6 @@ def dataset_to_array(dataset: pd.DataFrame):
             # Create a matrix from the Label
             label_vector = np.zeros((4, spect.shape[1]), int)
             label_vector[h, :] = 1
-
 
         # print(len(feature_matrix[0][0]))
         # print(label_matrix[0].shape)
@@ -185,8 +205,7 @@ def make_tf_dataset(dataset: pd.DataFrame, window_size: int, num_of_features: in
 
     generator = lambda: dataset_to_generator(window_size, data_array, data_labels)
     return tf.data.Dataset.from_generator(
-        generator, (tf.float32, tf.int32), ((window_size, num_of_features), [label_length,]))
-
+        generator, (tf.float32, tf.int32), ((window_size, num_of_features), [label_length, ]))
 
 
 def serve_single_file(filename: str, window_size: int, num_of_features: int, label_length: int):
@@ -197,6 +216,3 @@ def serve_single_file(filename: str, window_size: int, num_of_features: int, lab
 
     return tf.data.Dataset.from_generator(
         generator, (tf.float32, tf.int32), ((window_size, num_of_features), (label_length,)))
-
-
-
