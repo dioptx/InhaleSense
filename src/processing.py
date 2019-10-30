@@ -200,8 +200,7 @@ def dataset_to_generator(window_size: int, dataset: list, labels: list):
 def make_tf_dataset(dataset: pd.DataFrame, window_size: int, num_of_features: int, label_length: int):
     data_array, data_labels = dataset_to_array(dataset=dataset)
 
-    # data_labels = [np.where(label == 1) for label in data_labels]
-    # label_length = 4
+
 
     generator = lambda: dataset_to_generator(window_size, data_array, data_labels)
     return tf.data.Dataset.from_generator(
