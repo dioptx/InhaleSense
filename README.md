@@ -5,12 +5,12 @@ The goal of this project is to produce a deep learning model that discovers and 
 
 The dataset used for the initial stage of the implementation is not provided. 
 
-[Research Gate Link](https://www.researchgate.net/publication/335135907_Recognition_of_breathing_activity_and_medication_adherence_using_LSTM_Neural_Networks)
+[Research Gate & Publication Link](https://www.researchgate.net/publication/335135907_Recognition_of_breathing_activity_and_medication_adherence_using_LSTM_Neural_Networks)
 
 ### Authors of the publication:
 - Dionisis Pettas (dennis.petta@gmail.com)
 - Stavros Nousias (nousias.stavros@gmail.com)
-- Eua Zacharaki
+- Evangelia Zacharaki (ezachar@upatras.gr)
 
 ### Some other notes:
 
